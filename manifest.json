@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "GraphyCheck",
+  "version": "1.0",
+  "description": "Corrige l'orthographe et la grammaire avec l'API de chatGPT",
+  "permissions": ["contextMenus", "activeTab", "scripting", "storage", "tabs"],
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "css": ["styles/main.css"]
+    }
+  ],
+  "action": {
+    "default_popup": "pages/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_page": "pages/options.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
