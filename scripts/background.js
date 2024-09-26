@@ -57,8 +57,13 @@ function showCustomModalWithSelection() {
           </div>
         </section>
         <footer class="modal-container-footer">
-          <button id="cancelButton" class="button is-ghost">Annuler</button>
-          <button id="confirmButton" class="button is-primary">Confirmer</button>
+          <p class="brand-footer">
+            By Opengraphy 
+          </p>
+          <div>
+            <button id="cancelButton" class="button is-ghost">Annuler</button>
+            <button id="confirmButton" class="button is-primary">Confirmer</button>
+          </div>
         </footer>
       </article>
     </div>
