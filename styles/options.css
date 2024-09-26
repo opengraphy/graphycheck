@@ -40,6 +40,7 @@ header h1 {
 }
 
 .optionsContainer {
+  position: relative;
   width: 70%;
   margin: 2rem auto;
   padding: 1rem 2rem;
@@ -151,17 +152,22 @@ header h1 {
 }
 
 .keyApproval {
+  position: absolute;
+  z-index: 1000;
+
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   background-color: #dcfce7;
   padding: 8px 16px;
   border-radius: 8px;
+  overflow: hidden;
 
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
 .keyApproval p {
+  font-size: 14px;
   color: #16a34a;
 }
 
@@ -169,7 +175,8 @@ header h1 {
   background-color: transparent;
   border: none;
   cursor: pointer;
-  margin-left: 16px;
+  padding: 0;
+  margin-left: 24px;
   border-radius: 7px;
 
   display: flex;
@@ -200,4 +207,13 @@ header h1 {
 
 .infoIcon:hover + .tooltip {
   visibility: visible;
+}
+
+@keyframes loaderBar {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0;
+  }
 }

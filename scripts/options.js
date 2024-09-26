@@ -18,6 +18,13 @@ document.querySelector("#saveOption").addEventListener("click", () => {
   chrome.storage.local.set({ options });
 
   document.getElementById("infoContainer").style.display = "flex";
+  document.getElementById("progressBar").style.animation =
+    "loaderBar 5s linear";
+
+  setTimeout(() => {
+    document.getElementById("progressBar").style.animation = "none";
+    document.getElementById("infoContainer").style.display = "none";
+  }, 4999);
 });
 
 document.querySelector("#resetApiKey").addEventListener("click", () => {
