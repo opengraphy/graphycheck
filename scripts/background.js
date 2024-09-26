@@ -1,5 +1,7 @@
 //open options page on install
 chrome.runtime.onInstalled.addListener((details) => {
+  chrome.storage.local.set({ options: { model: "gpt-4o", overline: true } });
+
   if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
     chrome.runtime.openOptionsPage();
   }
@@ -84,10 +86,11 @@ function showCustomModalWithSelection() {
   document.getElementById("cancelButton").addEventListener("click", closeModal);
   document.getElementById("closeButton").addEventListener("click", closeModal);
 
-  chrome.storage.local.get("apiKey", async function (result) {
-    if (result?.apiKey) {
+  chrome.storage.local.get("options", async function (result) {
+    const options = result?.options;
+    if (options?.apiKey) {
       let text = "";
-      callChatGPT(selectedHtml, result.apiKey).then((response) => {
+      callChatGPT(selectedHtml, options).then((response) => {
         if (response) {
           text = response;
           document.querySelector(".modal-container-body").innerHTML = text;
@@ -148,23 +151,37 @@ function showCustomModalWithSelection() {
     range.insertNode(fragment);
   }
 
-  async function callChatGPT(prompt, apiKey) {
+  async function callChatGPT(prompt, options) {
     const url = "https://api.openai.com/v1/chat/completions";
+    const { apiKey, overline, model } = options;
+
+    let content = `Tu es un assistant qui corrige l'orthographe et la grammaire dans du HTML. 
+        Pour les éléments ayant l'attribut aria-invalid="spelling", supprime tous les attributs de cet élément. 
+        Pour les éléments ayant l'attribut aria-invalid="grammar", supprime tous les attributs de cet élément. 
+        Corrige également les erreurs d'orthographe et de grammaire dans le texte tout en conservant le formatage d'origine.
+        sans entourer la réponse de blocs de code comme \`\`\` ou \`\`\`html`;
+
+    if (overline) {
+      content = `Tu es un assistant qui corrige l'orthographe et la grammaire dans du HTML. 
+        Pour les éléments ayant l'attribut aria-invalid="spelling", supprime tous les attributs de cet élément et leur rajouter la classe "spellingCorrection". 
+        Pour les éléments ayant l'attribut aria-invalid="grammar", supprime tous les attributs de cet élément et leur rajouter la classe "grammarCorrection". 
+        Corrige également les erreurs d'orthographe et de grammaire dans le texte tout en conservant le formatage d'origine.
+        sans entourer la réponse de blocs de code comme \`\`\` ou \`\`\`html`;
+    }
 
     const body = {
-      model: "gpt-4o",
+      model,
       messages: [
         {
           role: "system",
-          content:
-            "Tu es un assistant qui corrige l'orthographe et la grammaire. Corrige les erreurs dans le texte fourni tout en conservant le formatage d'origine (espaces, sauts de ligne, etc.), et renvoie uniquement le texte corrigé en HTML, sans entourer la réponse de blocs de code comme ``` ou ```html.",
+          content,
         },
         {
           role: "user",
           content: prompt,
         },
       ],
-      max_tokens: 2048,
+      max_tokens: 4096,
     };
 
     const response = await fetch(url, {
@@ -188,6 +205,16 @@ function showCustomModalWithSelection() {
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+
+    let result = data.choices[0].message.content;
+
+    if (overline) {
+      result =
+        `<div class="tagContainer">
+          <p class="spellingCorrection">Correction orthographique</p>
+          <p class="grammarCorrection">Correction grammaticale</p>
+        </div>` + result;
+    }
+    return result;
   }
 }

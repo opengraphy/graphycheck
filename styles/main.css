@@ -105,7 +105,7 @@
 }
 
 .orthoGraphyModal .modal-container-body {
-  padding: 24px 24px;
+  padding: 12px 24px 24px 24px;
   overflow-y: auto;
 }
 
@@ -266,4 +266,26 @@
   font-weight: 600;
   font-size: 14px;
   color: #334155;
+}
+
+.orthoGraphyModal .tagContainer {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.orthoGraphyModal .tagContainer p {
+  margin: 0;
+}
+
+.orthoGraphyModal .spellingCorrection {
+  padding: 0 4px;
+  border-radius: 4px;
+  background-color: #fee2e2;
+}
+
+.orthoGraphyModal .grammarCorrection {
+  padding: 0 4px;
+  border-radius: 4px;
+  background-color: #dbeafe;
 }
