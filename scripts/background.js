@@ -1,9 +1,11 @@
+//open options page on install
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
     chrome.runtime.openOptionsPage();
   }
 });
 
+//create context menu
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "convertToChatGPT",
@@ -12,6 +14,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+//open modal on context menu click
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "convertToChatGPT") {
     chrome.scripting.executeScript({
@@ -22,6 +25,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
+//open options page function for button from modal
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.action === "openOptions") {
     chrome.runtime.openOptionsPage();
@@ -29,7 +33,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 function showCustomModalWithSelection() {
-  // Crée la structure HTML de la modal
   const modalHTML = `
   <div class="orthoGraphyModal">
     <div id="customModal" class="modal">
@@ -70,17 +73,10 @@ function showCustomModalWithSelection() {
   </div>
   `;
 
-  // Capture et stocke la sélection actuelle avant de montrer la modal
-  const selection = window.getSelection();
-  const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+  const { range, selectedHtml } = getSelectionHtml();
 
   if (!range) return;
 
-  const selectedText = range.toString();
-
-  if (selectedText.trim() === "") return;
-
-  // Injecte la modal dans le DOM
   const modalWrapper = document.createElement("div");
   modalWrapper.innerHTML = modalHTML;
   document.body.appendChild(modalWrapper);
@@ -91,7 +87,7 @@ function showCustomModalWithSelection() {
   chrome.storage.local.get("apiKey", async function (result) {
     if (result?.apiKey) {
       let text = "";
-      callChatGPT(selectedText, result.apiKey).then((response) => {
+      callChatGPT(selectedHtml, result.apiKey).then((response) => {
         if (response) {
           text = response;
           document.querySelector(".modal-container-body").innerHTML = text;
@@ -113,7 +109,25 @@ function showCustomModalWithSelection() {
     }
   });
 
-  // Fermer la modal
+  function getSelectionHtml() {
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+    if (range.toString().trim() !== "") {
+      const fragment = range.cloneContents();
+      const div = document.createElement("div");
+      div.appendChild(fragment);
+      return {
+        range: range,
+        selectedHtml: div.innerHTML,
+      };
+    }
+    closeModal();
+    return {
+      range: null,
+      selectedHtml: "",
+    };
+  }
+
   function closeModal() {
     const modal = document.getElementById("customModal");
     if (modal) {
@@ -121,15 +135,37 @@ function showCustomModalWithSelection() {
     }
   }
 
-  // Fonction pour remplacer la sélection avec le texte modifié
-  function replaceSelectionWithText(range, newText) {
-    if (newText.trim() === "") return;
+  function replaceSelectionWithText(range, newHtml) {
+    if (newHtml.trim() === "") return;
     range.deleteContents();
-    range.insertNode(document.createTextNode(newText));
+    const div = document.createElement("div");
+    div.innerHTML = newHtml;
+    const fragment = document.createDocumentFragment();
+    let node;
+    while ((node = div.firstChild)) {
+      fragment.appendChild(node);
+    }
+    range.insertNode(fragment);
   }
 
   async function callChatGPT(prompt, apiKey) {
     const url = "https://api.openai.com/v1/chat/completions";
+
+    const body = {
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content:
+            "Tu es un assistant qui corrige l'orthographe et la grammaire. Corrige les erreurs dans le texte fourni tout en conservant le formatage d'origine (espaces, sauts de ligne, etc.), et renvoie uniquement le texte corrigé en HTML, sans entourer la réponse de blocs de code comme ``` ou ```html.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      max_tokens: 2048,
+    };
 
     const response = await fetch(url, {
       method: "POST",
@@ -137,33 +173,7 @@ function showCustomModalWithSelection() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: [
-              {
-                type: "text",
-                text: "1. Corrige toutes les erreurs d'orthographe et de grammaire dans le texte que je fournis, en gardant le sens original.\n2. Dans ta réponse, il ne doit se trouver que le texte corrigé",
-              },
-            ],
-          },
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: prompt,
-              },
-            ],
-          },
-        ],
-        max_tokens: 2048,
-        response_format: {
-          type: "text",
-        },
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
