@@ -57,12 +57,15 @@ function showCustomModalWithSelection() {
           </div>
         </section>
         <footer class="modal-container-footer">
-          <div
+          <a
             style="
               display: flex;
               flex-direction: column;
               align-items: center;
+              text-decoration: none;
             "
+            href="https://www.opengraphy.com/" 
+            target="_blank"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -85,7 +88,7 @@ function showCustomModalWithSelection() {
             <p class="brand-footer">
               By Opengraphy 
             </p>
-          </div>
+          </a>
           <div>
             <button id="cancelButton" class="button is-ghost">Annuler</button>
             <button id="confirmButton" class="button is-primary">Confirmer</button>
