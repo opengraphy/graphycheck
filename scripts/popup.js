@@ -6,18 +6,22 @@ window.onload = async () => {
     if (options?.apiKey) {
       document.querySelector("#apiKeyInput").value = options?.apiKey;
     }
-    document.querySelector("#model").value = options.model;
-    document.querySelector("#overlineInput").checked = options.overline;
   });
 };
 
-document.querySelector("#saveOption").addEventListener("click", () => {
+document.querySelector("#saveApiKey").addEventListener("click", () => {
   const apiKey = document.querySelector("#apiKeyInput").value;
-  const model = document.querySelector("#model").value;
-  const overline = document.querySelector("#overlineInput").checked;
 
-  const options = { apiKey, model, overline };
-  chrome.storage.local.set({ options });
+  if (!apiKey) {
+    return;
+  }
+  chrome.storage.local.get("options", function (result) {
+    const options = result?.options;
+    if (apiKey) {
+      options.apiKey = apiKey;
+      chrome.storage.local.set({ options });
+    }
+  });
 
   document.getElementById("infoContainer").style.display = "flex";
   document.getElementById("progressBar").style.animation =

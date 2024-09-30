@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Configurer la clé API</title>
-    <link rel="stylesheet" href="../styles/options.css" />
+    <link rel="stylesheet" href="../styles/popup.css" />
   </head>
   <body
     style="
@@ -16,7 +16,7 @@
   >
     <div class="option">
       <div class="infoContainer" id="infoContainer" style="margin-bottom: 8px">
-        <div class="keyApproval">
+        <div class="keyApproval" style="top: 12px">
           <p>Clé API enregistrée</p>
           <button id="closeInfo">
             <svg
@@ -32,6 +32,18 @@
               />
             </svg>
           </button>
+          <div
+            id="progressBar"
+            style="
+              position: absolute;
+              width: 100%;
+              height: 4px;
+              background-color: #16a34a;
+              bottom: 0;
+              left: 0;
+              transform-origin: left;
+            "
+          ></div>
         </div>
       </div>
       <h3 class="test">Configurer la clé API</h3>
@@ -54,6 +66,6 @@
         <button id="resetApiKey" class="deleteButton">Supprimer</button>
       </div>
     </div>
-    <script src="../scripts/options.js"></script>
+    <script src="../scripts/popup.js"></script>
   </body>
 </html>
