@@ -285,14 +285,29 @@
   margin: 0;
 }
 
-.orthoGraphyModal .spellingCorrection {
-  padding: 0 4px;
-  border-radius: 4px;
-  background-color: #fee2e2;
+.orthoGraphyModal .tagContainer .correction:hover {
+  cursor: default !important;
 }
 
-.orthoGraphyModal .grammarCorrection {
+.orthoGraphyModal .correction {
   padding: 0 4px;
   border-radius: 4px;
-  background-color: #dbeafe;
+  background-color: #dcfce7;
+  font-weight: 600;
+}
+
+.orthoGraphyModal .helpCursor:hover {
+  cursor: help;
+}
+
+.orthoGraphyModalTooltip {
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  position: absolute;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 100000;
 }

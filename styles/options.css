@@ -192,7 +192,9 @@ header h1 {
 
 #model:hover,
 #overlineLabel:hover,
-#overlineInput:hover {
+#overlineInput:hover,
+#errorTooltipLabel:hover,
+#errorTooltipInput:hover {
   cursor: pointer;
 }
 
