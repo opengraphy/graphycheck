@@ -100,9 +100,9 @@ function showCustomModalWithSelection() {
   </div>
   `;
 
-  const { range, selectedHtml } = getSelectionHtml();
+  const { range, htmlElement, selected } = getSelection();
 
-  if (!range) return;
+  if (!range && !htmlElement) return;
 
   const modalWrapper = document.createElement("div");
   modalWrapper.innerHTML = modalHTML;
@@ -115,7 +115,7 @@ function showCustomModalWithSelection() {
     const options = result?.options;
     if (options?.apiKey) {
       let text = "";
-      callChatGPT(selectedHtml, options).then((response) => {
+      callChatGPT(selected, options).then((response) => {
         if (response) {
           text = response;
           displayText = text;
@@ -138,7 +138,7 @@ function showCustomModalWithSelection() {
           document
             .getElementById("confirmButton")
             .addEventListener("click", () => {
-              replaceSelectionWithText(range, text);
+              replaceSelectionWithText(range, htmlElement, text);
               closeModal();
               document.querySelectorAll("[data-fault]").forEach((element) => {
                 element.removeEventListener("mouseover", showTooltip);
@@ -156,22 +156,42 @@ function showCustomModalWithSelection() {
     }
   });
 
-  function getSelectionHtml() {
+  function getSelection() {
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
+
     if (range.toString().trim() !== "") {
       const fragment = range.cloneContents();
       const div = document.createElement("div");
       div.appendChild(fragment);
       return {
         range: range,
-        selectedHtml: div.innerHTML,
+        htmlElement: null,
+        selected: div.innerHTML,
       };
+    } else if (selection.anchorNode.tagName === "TEXTAREA") {
+      alert("it's a textarea");
+      return {
+        range: null,
+        htmlElement: selection.anchorNode,
+        selected: selection.anchorNode.value,
+      };
+    } else if (selection.anchorNode.tagName === "DIV") {
+      for (let i = 0; i < selection.anchorNode.children.length; i++) {
+        if (selection.anchorNode.children[i].tagName === "TEXTAREA") {
+          return {
+            range: null,
+            htmlElement: selection.anchorNode.children[i],
+            selected: selection.anchorNode.children[i].value,
+          };
+        }
+      }
     }
     closeModal();
     return {
       range: null,
-      selectedHtml: "",
+      htmlElement: null,
+      selected: "",
     };
   }
 
@@ -182,17 +202,22 @@ function showCustomModalWithSelection() {
     }
   }
 
-  function replaceSelectionWithText(range, newHtml) {
-    if (newHtml.trim() === "") return;
-    range.deleteContents();
-    const div = document.createElement("div");
-    div.innerHTML = newHtml;
-    const fragment = document.createDocumentFragment();
-    let node;
-    while ((node = div.firstChild)) {
-      fragment.appendChild(node);
+  function replaceSelectionWithText(range, htmlElement, text) {
+    if (text.trim() === "") return;
+
+    if (range) {
+      range.deleteContents();
+      const div = document.createElement("div");
+      div.innerHTML = text;
+      const fragment = document.createDocumentFragment();
+      let node;
+      while ((node = div.firstChild)) {
+        fragment.appendChild(node);
+      }
+      range.insertNode(fragment);
+    } else if (htmlElement) {
+      htmlElement.value = text.replace(/<\/?[^>]+(>|$)/g, "");
     }
-    range.insertNode(fragment);
   }
 
   async function callChatGPT(prompt, options) {

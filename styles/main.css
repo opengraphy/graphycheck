@@ -15,7 +15,15 @@
 }
 
 .orthoGraphyModal a {
-  color: inherit;
+  color: black !important;
+}
+
+.orthoGraphyModal a:hover {
+  color: black !important;
+}
+
+.orthoGraphyModal p {
+  font-size: 16px !important;
 }
 
 /* End basic CSS override */
@@ -95,7 +103,7 @@
   margin: 10px 0;
   line-height: 1;
   font-weight: 700;
-  font-size: 1.125;
+  font-size: 24px !important;
   color: black !important;
 }
 
@@ -189,7 +197,7 @@
 .orthoGraphyModal .brand-footer {
   margin: 2px 0 0 0;
   align-self: flex-end;
-  font-size: 12px;
+  font-size: 12px !important;
 }
 
 .orthoGraphyModal .button {
@@ -198,10 +206,12 @@
   background-color: transparent;
   border: 0;
   font-weight: 600;
+  font-size: 16px !important;
   cursor: pointer;
   transition: 0.15s ease;
 
   &.is-ghost {
+    color: black !important;
     &:hover {
       background-color: #f1f5f9;
     }
@@ -209,7 +219,7 @@
 
   &.is-primary {
     background-color: #16a34a;
-    color: #fff;
+    color: #fff !important;
     &:hover {
       background-color: #15803d;
     }
