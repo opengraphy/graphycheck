@@ -113,7 +113,7 @@
 }
 
 .orthoGraphyModal .modal-container-body {
-  padding: 24px;
+  padding: 12px 24px;
   overflow-y: auto;
 }
 
@@ -197,7 +197,7 @@
 .orthoGraphyModal .brand-footer {
   margin: 2px 0 0 0;
   align-self: flex-end;
-  font-size: 12px !important;
+  font-size: 11px !important;
 }
 
 .orthoGraphyModal .button {

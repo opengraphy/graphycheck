@@ -87,7 +87,7 @@ function showCustomModalWithSelection() {
               </g>
             </svg>
             <p class="brand-footer">
-              By Opengraphy 
+              Opengraphy 
             </p>
           </a>
           <div>
@@ -114,19 +114,9 @@ function showCustomModalWithSelection() {
   chrome.storage.local.get("options", async function (result) {
     const options = result?.options;
     if (options?.apiKey) {
-      let text = "";
       callChatGPT(selected, options).then((response) => {
         if (response) {
-          text = response;
-          displayText = text;
-          if (options.overline) {
-            displayText =
-              `<div class="tagContainer">
-                <p class="correction">Correction effectuée</p>
-              </div>` + displayText;
-          }
-          document.querySelector(".modal-container-body").innerHTML =
-            displayText;
+          document.querySelector(".modal-container-body").innerHTML = response;
           if (options.errorTooltip) {
             // Attacher les événements aux éléments contenant l'attribut data-fault
             document.querySelectorAll("[data-fault]").forEach((element) => {
@@ -138,7 +128,7 @@ function showCustomModalWithSelection() {
           document
             .getElementById("confirmButton")
             .addEventListener("click", () => {
-              replaceSelectionWithText(range, htmlElement, text);
+              replaceSelectionWithText(range, htmlElement, response);
               closeModal();
               document.querySelectorAll("[data-fault]").forEach((element) => {
                 element.removeEventListener("mouseover", showTooltip);
