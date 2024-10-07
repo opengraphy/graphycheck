@@ -1,5 +1,6 @@
 //open options page on install
 chrome.runtime.onInstalled.addListener((details) => {
+  console.log("Extension installed and background ready!");
   chrome.contextMenus.create({
     id: "convertToChatGPT",
     title: "Corriger le texte",
@@ -13,6 +14,13 @@ chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
     chrome.runtime.openOptionsPage();
   }
+});
+
+chrome.action.onClicked.addListener((tab) => {
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    function: showModal,
+  });
 });
 
 //open modal on context menu click
@@ -118,7 +126,6 @@ function showCustomModalWithSelection() {
         if (response) {
           document.querySelector(".modal-container-body").innerHTML = response;
           if (options.errorTooltip) {
-            // Attacher les événements aux éléments contenant l'attribut data-fault
             document.querySelectorAll("[data-fault]").forEach((element) => {
               element.addEventListener("mouseover", showTooltip);
               element.addEventListener("mouseout", hideTooltip);
@@ -141,6 +148,7 @@ function showCustomModalWithSelection() {
       document.querySelector(".modal-container-body").innerHTML =
         '<div style="text-align:center;"><p class="error" style="margin:0;">Veuillez renseigner une clé API valide dans les options de l\'extension</p><button id="goToOption" class="button is-primary" style="margin-top:12px;">Ouvrir les options</button></div>';
       document.getElementById("goToOption").addEventListener("click", () => {
+        closeModal();
         chrome.runtime.sendMessage({ action: "openOptions" });
       });
     }
@@ -160,7 +168,6 @@ function showCustomModalWithSelection() {
         selected: div.innerHTML,
       };
     } else if (selection.anchorNode.tagName === "TEXTAREA") {
-      alert("it's a textarea");
       return {
         range: null,
         htmlElement: selection.anchorNode,
@@ -185,26 +192,16 @@ function showCustomModalWithSelection() {
     };
   }
 
-  function closeModal() {
-    const modal = document.getElementById("customModal");
-    if (modal) {
-      modal.remove();
-    }
-  }
-
   function replaceSelectionWithText(range, htmlElement, text) {
     if (text.trim() === "") return;
 
     if (range) {
+      // range.commonAncestorContainer.replaceChildren(
+      //   range.createContextualFragment(text)
+      // );
+
       range.deleteContents();
-      const div = document.createElement("div");
-      div.innerHTML = text;
-      const fragment = document.createDocumentFragment();
-      let node;
-      while ((node = div.firstChild)) {
-        fragment.appendChild(node);
-      }
-      range.insertNode(fragment);
+      range.insertNode(range.createContextualFragment(text));
     } else if (htmlElement) {
       htmlElement.value = text.replace(/<\/?[^>]+(>|$)/g, "");
     }
@@ -276,6 +273,13 @@ function showCustomModalWithSelection() {
     return data.choices[0].message.content;
   }
 
+  function closeModal() {
+    const modal = document.getElementById("customModal");
+    if (modal) {
+      modal.remove();
+    }
+  }
+
   // Fonction d'affichage du tooltip
   function showTooltip(event) {
     const target = event.currentTarget;
@@ -312,3 +316,84 @@ function showCustomModalWithSelection() {
     }
   }
 }
+
+const showModal = () => {
+  if (document.querySelector(".popupModal")) {
+    document.querySelector(".popupModal").remove();
+    return;
+  }
+
+  const modalHTML = `
+    <div class="popupModal">
+      <div class="header">
+        <h3>GraphyCheck</h3>
+        <p>V1.0.0</p>
+      </div>
+      <div class="content">
+        <button class="confirmButton">Accéder aux options</button>
+        <p>Fermer</p>
+      </div>
+      <a
+        style="
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+        "
+        href="https://www.opengraphy.com/" 
+        target="_blank"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 600 600"
+          width="32"
+          height="32"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <g>
+            <path
+              fill="#444444"
+              d="M361.06 178.18c.55-.52 1.09-1.04 1.63-1.58 16.69-16.5 26.09-39 26.09-62.47.14-48.76-39.43-88.58-88.21-88.72h-.26c-48.66 0-88.32 39.52-88.45 88.21a88.189 88.189 0 0 0 26.81 63.62L166.9 300.73a88.295 88.295 0 0 0-24.07-3.4h-.25c-48.66 0-88.32 39.52-88.45 88.21s39.43 88.57 88.2 88.71h.25c41.04 0 75.68-28.13 85.6-66.14l142.53.41c9.82 38.01 44.35 66.23 85.41 66.35h.27c48.85-.51 88.04-40.53 87.53-89.38-.5-48.04-39.25-86.9-87.29-87.53h-.24a87.926 87.926 0 0 0-24.61 3.46m-199.3-187.74c.15-37.37 30.46-67.59 67.83-67.64h.2c37.46.56 67.37 31.38 66.81 68.83-.55 36.74-30.26 66.37-67 66.82h-.23c-37.43-.16-67.67-30.58-67.61-68.01zm-89.92 339.95h-.19c-37.46-.56-67.37-31.38-66.81-68.84.55-36.75 30.26-66.37 67.01-66.81h.19c37.46.56 67.37 31.38 66.81 68.84-.55 36.74-30.26 66.37-67.01 66.81zm270.06-144.07c-27.55 15.69-44.61 44.92-44.72 76.62v1.72l-136.9-.39v-1.45a88.54 88.54 0 0 0-44.96-77.26l69.12-118.89a87.975 87.975 0 0 0 44.9 12.42h.26c15.47.03 30.68-4.01 44.08-11.73m159.8 243.93a67.36 67.36 0 0 1-47.82 19.73h-.2c-37.46-.56-67.37-31.38-66.81-68.84.55-36.75 30.26-66.37 67.01-66.81h.19c37.46.11 67.75 30.56 67.64 68.02a67.818 67.818 0 0 1-20.01 47.91v-.01z"
+            />
+          </g>
+          <g>
+            <path
+              fill="#27ae5f"
+              d="M542.02 155.38c-9.6-16.78-30.99-22.6-47.77-12.99-13.47 7.71-20.25 23.36-16.67 38.46l-164.53 94.36a23.873 23.873 0 0 0-26.6.76l-163.92-95.26c4.17-18.88-7.75-37.56-26.63-41.73-18.88-4.17-37.56 7.75-41.73 26.63-4.17 18.88 7.75 37.56 26.63 41.73 11.3 2.5 23.11-.76 31.54-8.69l164.14 95.39c0 .43-.04.86-.04 1.29a23.89 23.89 0 0 0 13.85 21.73l-.54 189.14c-18.43 5.83-28.65 25.5-22.82 43.93 5.83 18.43 25.5 28.65 43.93 22.82 18.43-5.83 28.65-25.5 22.82-43.93a35.005 35.005 0 0 0-23.31-22.97l.54-189.27a23.889 23.889 0 0 0 13.27-21.32c0-.93-.05-1.85-.16-2.78l163.99-94.05c14.25 13.06 36.4 12.09 49.46-2.16 10.31-11.24 12.15-27.87 4.55-41.09z"
+            />
+          </g>
+        </svg>
+        <div>
+          <p style="font-size: 10px; margin:0 0 -8px 1px;">
+            Développé par
+          </p>
+          <p style="font-size: 16px; font-weight: 600;">
+            Opengraphy
+          </p>
+        </div>
+      </a>
+    </div>`;
+
+  const modalWrapper = document.createElement("div");
+  modalWrapper.innerHTML = modalHTML;
+  document.body.appendChild(modalWrapper);
+
+  document
+    .querySelector(".popupModal .confirmButton")
+    .addEventListener("click", () => {
+      document.querySelector(".popupModal").remove();
+      chrome.runtime.sendMessage({ action: "openOptions" });
+    });
+
+  document
+    .querySelector(".popupModal .content p")
+    .addEventListener("click", () => {
+      document.querySelector(".popupModal").remove();
+    });
+
+  document.querySelector("html").addEventListener("click", (event) => {
+    if (event.target.closest(".popupModal")) return;
+    document.querySelector(".popupModal").remove();
+  });
+};
