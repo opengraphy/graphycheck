@@ -19,7 +19,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 chrome.action.onClicked.addListener((tab) => {
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    function: showModal,
+    function: showPopUpModal,
   });
 });
 
@@ -317,7 +317,7 @@ function showCustomModalWithSelection() {
   }
 }
 
-const showModal = () => {
+const showPopUpModal = () => {
   if (document.querySelector(".popupModal")) {
     document.querySelector(".popupModal").remove();
     return;
