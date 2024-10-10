@@ -161,6 +161,12 @@ function showCustomModalWithSelection() {
     // const contentEditableParent = findContentEditableParent(
     //   selection.anchorNode.parentElement
     // );
+    // const isAllSelected = contentEditableParent.textContent.trim() === range.toString().trim();
+
+    //check if toutes la div est selectionnée
+    // console.log(
+    //   contentEditableParent.textContent.trim() === range.toString().trim()
+    // );
 
     if (range.toString().trim() !== "") {
       const fragment = range.cloneContents();
@@ -168,6 +174,7 @@ function showCustomModalWithSelection() {
       div.appendChild(fragment);
       return {
         range: range,
+        isAllSelected,
         htmlElement: null,
         selected: div.innerHTML,
       };
@@ -295,7 +302,6 @@ function showCustomModalWithSelection() {
     }
   }
 
-  // Fonction d'affichage du tooltip
   function showTooltip(event) {
     const target = event.currentTarget;
     const fault = target.getAttribute("data-fault");
@@ -320,7 +326,6 @@ function showCustomModalWithSelection() {
     target._tooltip = tooltip;
   }
 
-  // Fonction de masquage du tooltip
   function hideTooltip(event) {
     const target = event.currentTarget;
     const tooltip = target._tooltip;
