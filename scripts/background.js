@@ -158,23 +158,12 @@ function showCustomModalWithSelection() {
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
 
-    // const contentEditableParent = findContentEditableParent(
-    //   selection.anchorNode.parentElement
-    // );
-    // const isAllSelected = contentEditableParent.textContent.trim() === range.toString().trim();
-
-    //check if toutes la div est selectionnée
-    // console.log(
-    //   contentEditableParent.textContent.trim() === range.toString().trim()
-    // );
-
     if (range.toString().trim() !== "") {
       const fragment = range.cloneContents();
       const div = document.createElement("div");
       div.appendChild(fragment);
       return {
         range: range,
-        isAllSelected,
         htmlElement: null,
         selected: div.innerHTML,
       };
@@ -202,17 +191,6 @@ function showCustomModalWithSelection() {
       selected: "",
     };
   }
-
-  // function findContentEditableParent(element) {
-  //   // Traverse les éléments parents jusqu'à trouver une div avec contenteditable=true
-  //   while (element && element !== document.body) {
-  //     if (element.getAttribute("contenteditable") === "true") {
-  //       return element;
-  //     }
-  //     element = element.parentElement;
-  //   }
-  //   return null; // Aucun parent avec contenteditable trouvé
-  // }
 
   function replaceSelectionWithText(range, htmlElement, text) {
     if (text.trim() === "") return;
